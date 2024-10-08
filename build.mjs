@@ -1,8 +1,9 @@
-import dts from 'bun-plugin-dts'
+import dts from "bun-plugin-dts";
 
 await Bun.build({
-  entrypoints: ['./src/index.ts'],
-  outdir: './dist',
-  minify: true,
-  plugins: [dts()]
-})
+  entrypoints: ["./src/index.ts"],
+  outdir: "./dist",
+  minify: false,
+  plugins: [dts()],
+  target: "node",
+});

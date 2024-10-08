@@ -1,6 +1,6 @@
 {
-  "name": "i18n-ai-translation",
-  "version": "0.0.0",
+  "name": "json-ai-translation",
+  "version": "0.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "",
@@ -15,16 +15,19 @@
     "bun"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/wobsoriano/pkg-name#readme",
+  "homepage": "https://github.com/shaneosullivan/json-ai-translation#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wobsoriano/pkg-name.git"
+    "url": "git+https://github.com/shaneosullivan/json-ai-translation.git"
   },
-  "bugs": "https://github.com/wobsoriano/pkg-name/issues",
-  "author": "Robert Soriano <sorianorobertc@gmail.com>",
+  "bugs": "https://github.com/shaneosullivan/json-ai-translation/issues",
+  "author": "Shane O'Sullivan <shaneosullivan1@gmail.com>",
   "devDependencies": {
     "bun-plugin-dts": "^0.2.1",
     "@types/bun": "^1.0.0",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "openai": "^4.67.3"
   }
 }
