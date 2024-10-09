@@ -61,7 +61,8 @@ export function flattenJSON(
 
 export function flattenJSONFile(
   filePath: string,
-  useGitSource = false
+  useGitSource = false,
+  isQuiet = true
 ): { [key: string]: any } {
   // Read the JSON file
 
@@ -70,11 +71,15 @@ export function flattenJSONFile(
   if (useGitSource) {
     try {
       const gitDiffCommand = `git show HEAD:${filePath}`;
-      fileContents = execSync(gitDiffCommand).toString();
+      fileContents = execSync(
+        gitDiffCommand,
+        isQuiet
+          ? {
+              stdio: ["pipe", "pipe", "ignore"],
+            }
+          : undefined
+      ).toString();
     } catch (error) {
-      console.error(
-        "Error executing git diff or file doesn't exist in git history."
-      );
       fileContents = "{}"; // Default to empty object if file does not exist in history
     }
   } else {
@@ -210,4 +215,42 @@ export function stringifyWithNewlines(obj: any): string {
 
   // Post-process the string to add a newline after each closing curly brace that signifies the end of an object
   return jsonString.replace(/},\n/g, "},\n\n");
+}
+
+export function getCommonStrings(arrays: Array<Array<string>>): Array<string> {
+  if (arrays.length === 0) {
+    return [];
+  }
+
+  // Create a map to count occurrences of each string
+  const stringCount = new Map<string, number>();
+  const totalArrays = arrays.length;
+
+  // Iterate over each array only once
+  arrays.forEach((array) => {
+    const uniqueStrings = new Set(array); // Use Set to ensure each string is counted once per array
+    uniqueStrings.forEach((str) => {
+      stringCount.set(str, (stringCount.get(str) || 0) + 1);
+    });
+  });
+
+  // Filter the strings that appear in all arrays
+  const result: string[] = [];
+  stringCount.forEach((count, str) => {
+    if (count === totalArrays) {
+      result.push(str);
+    }
+  });
+
+  return result;
+}
+
+export function chunkArray<T>(arr: T[], bucketSize: number): T[][] {
+  const result: T[][] = [];
+
+  for (let i = 0; i < arr.length; i += bucketSize) {
+    result.push(arr.slice(i, i + bucketSize));
+  }
+
+  return result;
 }

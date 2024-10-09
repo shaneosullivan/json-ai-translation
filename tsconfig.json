@@ -1,16 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "esnext",
-    "strict": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "skipLibCheck": true,
-    "noUnusedLocals": true,
-    "noImplicitAny": true,
-    "allowJs": true,
-    "noEmit": true,
-    "outDir": "dist",
-    "resolveJsonModule": true
-  }
+    "outDir": "./dist", // Output directory for compiled JavaScript files
+    "target": "ES6", // JavaScript target version (you can choose "ES2017" or higher if needed)
+    "module": "commonjs", // Output CommonJS modules
+    "declaration": true, // Generate .d.ts files for TypeScript definitions
+    "sourceMap": true, // Generate source maps
+    "strict": true, // Enable strict type-checking
+    "esModuleInterop": true, // Enable compatibility with CommonJS and ES modules
+    "skipLibCheck": true, // Skip type checks on node_modules (improves build performance)
+    "moduleResolution": "node" // Use Node module resolution
+  },
+  "include": ["src/**/*"], // Include your source files
+  "exclude": ["node_modules"] // Exclude node_modules from compilation
 }
