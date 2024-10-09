@@ -1,0 +1,36 @@
+name: Node.js Package Build and Publish
+
+on:
+  push:
+    branches:
+      - main # Trigger the workflow on push to the 'main' branch (or 'master' depending on your repo)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18" # Use your preferred Node.js version
+          registry-url: "https://registry.npmjs.org/"
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Build the project (uses the build script from your package.json)
+      - name: Build the project
+        run: npm run build
+
+      # Publish to npm if it's a push to the main branch
+      - name: Publish to npm
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
