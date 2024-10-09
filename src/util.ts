@@ -96,7 +96,10 @@ export function flattenJSONFile(
 }
 
 // Function to execute git diff and compare JSON file changes
-export function getGitDiffJSON(filePath: string): {
+export function getGitDiffJSON(
+  filePath: string,
+  forceTranslateAll = false
+): {
   replaced: string[];
   deleted: string[];
   added: string[];
@@ -110,15 +113,17 @@ export function getGitDiffJSON(filePath: string): {
 
   // Execute git diff to get the previous version of the file
   const gitDiffCommand = `git show HEAD:${filePath}`;
-  let previousFileContents: string;
+  let previousFileContents: string = "{}";
 
-  try {
-    previousFileContents = execSync(gitDiffCommand).toString();
-  } catch (error) {
-    console.error(
-      "Error executing git diff or file doesn't exist in git history."
-    );
-    previousFileContents = "{}"; // Default to empty object if file does not exist in history
+  if (!forceTranslateAll) {
+    try {
+      previousFileContents = execSync(gitDiffCommand).toString();
+    } catch (error) {
+      console.error(
+        "Error executing git diff or file doesn't exist in git history."
+      );
+      previousFileContents = "{}"; // Default to empty object if file does not exist in history
+    }
   }
 
   // Parse the previous file (if it exists in git)
@@ -145,9 +150,13 @@ export function getGitDiffJSON(filePath: string): {
 
   // Find added keys
   for (const key in flattenedCurrentJson) {
-    if (flattenedCurrentJson.hasOwnProperty(key)) {
-      if (!(key in flattenedPreviousJson)) {
-        added.push(key); // New key added
+    if (forceTranslateAll) {
+      replaced.push(key); // New key added
+    } else {
+      if (flattenedCurrentJson.hasOwnProperty(key)) {
+        if (!(key in flattenedPreviousJson)) {
+          added.push(key); // New key added
+        }
       }
     }
   }

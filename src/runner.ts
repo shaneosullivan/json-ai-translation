@@ -25,11 +25,19 @@ interface RunnerOptions {
   translationFn: AITranslation;
   mainLocale: string;
   noTranslate: Array<string>;
+  forceTranslateAll?: boolean;
 }
 
 export function createRunner(options: RunnerOptions) {
-  const { dir, dest, isQuiet, mainLocale, noTranslate, translationFn } =
-    options;
+  const {
+    dir,
+    dest,
+    isQuiet,
+    mainLocale,
+    noTranslate,
+    translationFn,
+    forceTranslateAll,
+  } = options;
 
   function log(...args: Array<any>) {
     if (isQuiet) {
@@ -208,7 +216,10 @@ export function createRunner(options: RunnerOptions) {
       // Go through the files in the main locales, and match its keys against the other files.
       const fileNames = Object.keys(mainLocaleInfo.file);
       fileNames.forEach((fileName) => {
-        const gitInfo = getGitDiffJSON(join(dir, mainLocale, fileName));
+        const gitInfo = getGitDiffJSON(
+          join(dir, mainLocale, fileName),
+          !!forceTranslateAll
+        );
 
         changedKeys[fileName] = gitInfo.added.concat(gitInfo.replaced);
         deletedKeys[fileName] = gitInfo.deleted;

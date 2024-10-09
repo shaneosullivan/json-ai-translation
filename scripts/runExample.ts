@@ -22,16 +22,21 @@ const simpleTranslation: AITranslation = (
   return Promise.resolve(stringifyWithNewlines(localeJsons));
 };
 
-function nestedExample() {
-  const runner = createRunner({
-    dest: "example/build/nested",
-    dir: "example/nested/locales",
+function makeRunner(folderName: string) {
+  return createRunner({
+    dest: `example/build/${folderName}`,
+    dir: `example/${folderName}/locales`,
     isQuiet: false,
     mainLocale: "en",
     noTranslate: [],
+    forceTranslateAll: true,
 
     translationFn: simpleTranslation,
   });
+}
+
+function nestedExample() {
+  const runner = makeRunner("nested");
 
   runner.run();
 }
@@ -39,35 +44,24 @@ function nestedExample() {
 // This should cause the example/build/new-locale/fr/common.json file
 // to be created, even though there is just an empty "fr" folder as source
 function newLocaleExample() {
-  const runner = createRunner({
-    dest: "example/build/new-locale",
-    dir: "example/new-locale/locales",
-    isQuiet: false,
-    mainLocale: "en",
-    noTranslate: [],
-
-    translationFn: simpleTranslation,
-  });
+  const runner = makeRunner("new-locale");
 
   runner.run();
 }
 
-// This should cause the example/build/new-locale/fr/common.json file
-// to be created, even though there is just an empty "fr" folder as source
 function flatExample() {
-  const runner = createRunner({
-    dest: "example/build/flat",
-    dir: "example/flat/locales",
-    isQuiet: false,
-    mainLocale: "en",
-    noTranslate: [],
-
-    translationFn: simpleTranslation,
-  });
+  const runner = makeRunner("flat");
 
   runner.run();
 }
 
+function multifileExample() {
+  const runner = makeRunner("multifile");
+
+  runner.run();
+}
+
+multifileExample();
 nestedExample();
 flatExample();
 newLocaleExample();
