@@ -1,5 +1,7 @@
-import { readdirSync, statSync } from "fs";
-import { join } from "path";
+import { existsSync, mkdirSync, readdirSync, statSync } from "fs";
+import { join, resolve } from "path";
+import { readFileSync } from "fs";
+import { execSync } from "child_process";
 
 export function listFoldersInPath(path: string): string[] {
   // Read all the contents of the directory
@@ -32,8 +34,7 @@ export function isValidLocale(locale: string): boolean {
   return localeRegex.test(locale);
 }
 
-import { readFileSync } from "fs";
-import { execSync } from "child_process";
+const PERIOD_ESC = "~|~";
 
 export function flattenJSON(
   jsonObject: any,
@@ -42,7 +43,8 @@ export function flattenJSON(
 ): { [key: string]: any } {
   for (const key in jsonObject) {
     if (jsonObject.hasOwnProperty(key)) {
-      const newKey = parentKey ? `${parentKey}.${key}` : key;
+      const escapedKey = key.split(".").join(PERIOD_ESC);
+      const newKey = parentKey ? `${parentKey}.${escapedKey}` : escapedKey;
       if (
         typeof jsonObject[key] === "object" &&
         jsonObject[key] !== null &&
@@ -66,7 +68,7 @@ export function flattenJSONFile(
 ): { [key: string]: any } {
   // Read the JSON file
 
-  let fileContents: string;
+  let fileContents: string = "{}";
 
   if (useGitSource) {
     try {
@@ -82,7 +84,7 @@ export function flattenJSONFile(
     } catch (error) {
       fileContents = "{}"; // Default to empty object if file does not exist in history
     }
-  } else {
+  } else if (existsSync(filePath)) {
     fileContents = readFileSync(filePath, "utf-8");
   }
 
@@ -191,16 +193,17 @@ export function unflattenJSON(
 
       // Iterate over the keys to create nested objects
       keys.forEach((key, index) => {
+        const unescapedKey = key.split(PERIOD_ESC).join(".");
         if (index === keys.length - 1) {
           // If this is the last key, assign the value
-          currentLevel[key] = flattened[flatKey];
+          currentLevel[unescapedKey] = flattened[flatKey];
         } else {
           // If the key doesn't exist at this level, create an empty object
-          if (!currentLevel[key]) {
-            currentLevel[key] = {};
+          if (!currentLevel[unescapedKey]) {
+            currentLevel[unescapedKey] = {};
           }
           // Move deeper into the object
-          currentLevel = currentLevel[key];
+          currentLevel = currentLevel[unescapedKey];
         }
       });
     }
@@ -253,4 +256,14 @@ export function chunkArray<T>(arr: T[], bucketSize: number): T[][] {
   }
 
   return result;
+}
+
+export function ensureDirectoryExists(relativePath: string): void {
+  const absolutePath = resolve(relativePath);
+
+  // Check if the directory already exists
+  if (!existsSync(absolutePath)) {
+    // Create the directory and any necessary parent directories
+    mkdirSync(absolutePath, { recursive: true });
+  }
 }

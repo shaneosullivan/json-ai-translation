@@ -1,12 +1,12 @@
 {
   "name": "json-ai-translation",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
     "json-ai-translation": "./dist/index.js"
   },
-  "description": "",
+  "description": "Automatically translate JSON files of strings into multiple locales simultaneously using AI.",
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "tsc"

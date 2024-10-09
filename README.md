@@ -1,7 +1,11 @@
 # JSON AI Translation
 
-This package makes it simple to keep a project its translation files
-up to date using AI.
+This package makes it simple to keep a project's translation files
+up to date using AI. It is ideal for the use case where you do all
+your language edits in a single locale file, e.g. `en`, then want
+OpenAI to automatically translate just the changed or new strings into
+all the other locales. You can then either check these in, or open
+a pull request to send these suggestions to human translaters
 
 ## Getting Started
 
@@ -16,7 +20,7 @@ npm install -g json-ai-translation
 The package assumes that you keep all your files to be translated in a single folder,
 with each non-nested sub-folder being named after the locale it represents. E.g.
 
-```
+```bash
 public/locales/en/common.json
 public/locales/de/common.json
 public/locales/es/common.json
@@ -37,15 +41,35 @@ OpenAI to translate from the authoritive locale into all the others.
 Only values that have changed in the main locale will be updated, so if you have manually edited
 values in the locale files previously, those will remain unchanged.
 
+## Adding a new locale
+
+To add a new locale, simply create a new folder with that locale code, e.g. Portuguese
+
+```bash
+public/locales/pt
+```
+
+and run the `json-ai-translation` command again. All the files in the main locale will be
+created in the new locale, fully translated by AI.
+
+## Building to another folder
+
+If you want to the leave the source files unchanged, set the `--dest` argument to the path to another folder, e.g.
+
+```bash
+json-ai-translation --dir public/locales --dest build/locales --main en --openaitoken \"$OPENAI_API_KEY\"
+```
+
 ## Parameters
 
-| Parameter     | Description                                                                                                                       |
-| :------------ | :-------------------------------------------------------------------------------------------------------------------------------- |
-| --dir         | The folder in which the locale files are stored                                                                                   |
-| --main        | The primary locale code, e.g. --main en                                                                                           |
-| --openaitoken | Your OpenAI token                                                                                                                 |
-| --notranslate | A list of strings that should not be translated. For example, product names. E.g. `--notranslate "My Cool App" "My Company Name"` |
-| --quiet       | Do not log anything to the console when running                                                                                   |
+| Parameter     | Description                                                                                                                       |          |
+| :------------ | :-------------------------------------------------------------------------------------------------------------------------------- | :------- |
+| --dir         | The folder in which the locale files are stored                                                                                   | Required |
+| --main        | The primary locale code, e.g. --main en                                                                                           | Required |
+| --openaitoken | Your OpenAI token                                                                                                                 | Required |
+| --dest        | The folder in which the translated locale files written. Defaults to the same as --dir                                            | Optional |
+| --notranslate | A list of strings that should not be translated. For example, product names. E.g. `--notranslate "My Cool App" "My Company Name"` | Optional |
+| --quiet       | Do not log anything to the console when running                                                                                   | Optional |
 
 ## License
 
