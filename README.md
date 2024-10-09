@@ -42,8 +42,10 @@ values in the locale files previously, those will remain unchanged.
 | Parameter     | Description                                                                                                                       |
 | :------------ | :-------------------------------------------------------------------------------------------------------------------------------- |
 | --dir         | The folder in which the locale files are stored                                                                                   |
+| --main        | The primary locale code, e.g. --main en                                                                                           |
 | --openaitoken | Your OpenAI token                                                                                                                 |
 | --notranslate | A list of strings that should not be translated. For example, product names. E.g. `--notranslate "My Cool App" "My Company Name"` |
+| --quiet       | Do not log anything to the console when running                                                                                   |
 
 ## License
 
