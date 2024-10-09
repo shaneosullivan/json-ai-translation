@@ -5,7 +5,11 @@ up to date using AI. It is ideal for the use case where you do all
 your language edits in a single locale file, e.g. `en`, then want
 OpenAI to automatically translate just the changed or new strings into
 all the other locales. You can then either check these in, or open
-a pull request to send these suggestions to human translaters
+a pull request to send these suggestions to human translaters.
+
+Note that for this tool to detect which strings have changed
+in your main locale file, you should run this before committing that
+file to git.
 
 ## Getting Started
 
