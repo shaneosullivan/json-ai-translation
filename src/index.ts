@@ -6,6 +6,7 @@ import fs from "fs";
 import OpenAI from "openai";
 import { createRunner } from "./runner";
 import { AITranslation } from "./types";
+import { trimQuotes } from "./util";
 
 /*
   Steps:
@@ -17,26 +18,42 @@ import { AITranslation } from "./types";
     6 - Write the changes back to the files, nesting where appropriate.
 */
 
-const args = parseArgs({
-  options: {
-    dir: { type: "string" },
-    dest: { type: "string" },
-    main: { type: "string" },
-    openaitoken: { type: "string" },
-    notranslate: { type: "string", multiple: true },
-    quiet: { type: "boolean" },
-  },
-}).values;
+let dir: string;
+let dest: string;
+let mainLocale: string;
+let openAIToken: string;
+let noTranslate: Array<string>;
+let isQuiet: boolean;
+let showHelp: boolean;
 
-const dir = args.dir || "";
+try {
+  const args = parseArgs({
+    options: {
+      dir: { type: "string" },
+      dest: { type: "string" },
+      main: { type: "string" },
+      openaitoken: { type: "string" },
+      notranslate: { type: "string", multiple: true },
+      quiet: { type: "boolean" },
+      help: { type: "boolean", short: "h" },
+    },
+  }).values;
 
-// The destination folder is the same as the source locale folder
-// by default
-const dest = args.dest || dir;
-const mainLocale = args.main || "";
-const openAIToken = args.openaitoken || "";
-const noTranslate = args.notranslate || [];
-const isQuiet = !!args.quiet;
+  dir = args.dir || "";
+
+  // The destination folder is the same as the source locale folder
+  // by default
+  dest = args.dest || dir;
+  mainLocale = args.main || "";
+  openAIToken = trimQuotes(args.openaitoken || "").trim();
+
+  noTranslate = args.notranslate || [];
+  isQuiet = !!args.quiet;
+  showHelp = !!args.help;
+} catch (err: any) {
+  console.error("json-ai-translation error:", err.message);
+  process.exit(1);
+}
 
 function validateArgs() {
   if (!dir) {
@@ -60,6 +77,29 @@ function validateArgs() {
   }
 
   return true;
+}
+
+function printHelp() {
+  console.log(`JSON AI Translation Help
+Example usage
+  json-ai-translation --dir public/locales --main en --openaitoken \"$OPENAI_API_KEY\"
+
+Options
+  --dir         [Required] The folder in which the locale files are stored
+  --main        [Required] The primary locale code, e.g. --main en
+  --openaitoken [Required] Your OpenAI token
+  --dest        [Optional] The folder in which the translated locale files written. Defaults to the same as --dir
+  --notranslate [Optional] A list of strings that should not be translated. For example, product names. E.g. --notranslate "My Cool App" "My Company Name"
+  --quiet       [Optional] Do not log anything to the console when running
+  --help        [Optional] Show this help information
+
+  Read more at https://www.npmjs.com/package/json-ai-translation
+`);
+}
+
+if (showHelp) {
+  printHelp();
+  process.exit(0);
 }
 
 if (!validateArgs()) {

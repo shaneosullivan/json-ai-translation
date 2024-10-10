@@ -276,3 +276,13 @@ export function ensureDirectoryExists(relativePath: string): void {
     mkdirSync(absolutePath, { recursive: true });
   }
 }
+
+export function trimQuotes(input: string): string {
+  if (
+    (input.startsWith('"') && input.endsWith('"')) ||
+    (input.startsWith("'") && input.endsWith("'"))
+  ) {
+    return input.slice(1, -1);
+  }
+  return input;
+}
