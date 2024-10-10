@@ -1,6 +1,6 @@
 {
   "name": "json-ai-translation",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
@@ -15,7 +15,13 @@
     "dist"
   ],
   "keywords": [
-    "bun"
+    "bun",
+    "translation",
+    "i18n",
+    "translate",
+    "locale",
+    "ai",
+    "chatgpt"
   ],
   "license": "MIT",
   "homepage": "https://github.com/shaneosullivan/json-ai-translation#readme",
