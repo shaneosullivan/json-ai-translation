@@ -16,7 +16,7 @@ import { join } from "path";
 import { AITranslation, LocaleInfo } from "./types";
 
 // How many keys to process in one go
-const BUCKET_SIZE = 50;
+const BUCKET_SIZE = 25;
 
 interface RunnerOptions {
   dest: string;
@@ -28,7 +28,12 @@ interface RunnerOptions {
   forceTranslateAll?: boolean;
 }
 
-export function createRunner(options: RunnerOptions) {
+export interface Runner {
+  run: () => Promise<Array<number>>;
+  log: (...args: Array<any>) => void;
+}
+
+export function createRunner(options: RunnerOptions): Runner {
   const {
     dir,
     dest,
@@ -342,9 +347,9 @@ export function createRunner(options: RunnerOptions) {
         : "";
 
     const prompt = `
-  Translate the following JSON from English into the languages: ${locales.filter(
-    (locale) => locale !== mainLocale
-  )}. ${doNotTranslatePrompt}. Reply in JSON, grouped by locale. 
+  Translate the following JSON from the locale ${mainLocale} into the languages: ${locales.filter(
+      (locale) => locale !== mainLocale
+    )}. ${doNotTranslatePrompt}. Reply in JSON, grouped by locale. Do not include the locale ${mainLocale}
   Do not include any code block formatting, only respond with raw JSON.
   `;
 

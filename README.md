@@ -33,14 +33,21 @@ public/locales/ko/common.json
 
 You must tell the script which locale is the authoritive one from which all
 other locales are translated. The example below assumes that your OpenAI API key
-is in the `OPENAI_API_KEY` environment variable
+is in the `OPENAI_API_KEY` environment variable.
 
 ```bash
 json-ai-translation --dir public/locales --main en --openaitoken \"$OPENAI_API_KEY\"
 ```
 
+Alternatively, to use Anthropic, assuming your API key is in the `ANTHROPIC_API_KEY`
+environment variable
+
+```bash
+json-ai-translation --dir public/locales --main en --anthropicaitoken \"$ANTHROPIC_API_KEY\"
+```
+
 This will cause all other locale files in the `public/locales` folder to be updated, using
-OpenAI to translate from the authoritive locale into all the others.
+OpenAI/Anthropic to translate from the authoritive locale into all the others.
 
 Only values that have changed in the main locale will be updated, so if you have manually edited
 values in the locale files previously, those will remain unchanged.
@@ -66,14 +73,17 @@ json-ai-translation --dir public/locales --dest build/locales --main en --openai
 
 ## Parameters
 
-| Parameter     | Description                                                                                                                       |          |
-| :------------ | :-------------------------------------------------------------------------------------------------------------------------------- | :------- |
-| --dir         | The folder in which the locale files are stored                                                                                   | Required |
-| --main        | The primary locale code, e.g. --main en                                                                                           | Required |
-| --openaitoken | Your OpenAI token                                                                                                                 | Required |
-| --dest        | The folder in which the translated locale files written. Defaults to the same as --dir                                            | Optional |
-| --notranslate | A list of strings that should not be translated. For example, product names. E.g. `--notranslate "My Cool App" "My Company Name"` | Optional |
-| --quiet       | Do not log anything to the console when running                                                                                   | Optional |
+| Parameter          | Description                                                                                                                          | Type    |           |
+| :----------------- | :----------------------------------------------------------------------------------------------------------------------------------- | :------ | :-------- |
+| --dir              | The folder in which the locale files are stored                                                                                      | String  | Required  |
+| --main             | The primary locale code, e.g. --main en                                                                                              | String  | Required  |
+| --openaitoken      | Your OpenAI token, required unless an Anthropic token is provided                                                                    | String  | Required? |
+| --anthropicaitoken | Your AnthropicAI token, required unless an OpenAI token is provided                                                                  | String  | Required? |
+| --dest             | The folder in which the translated locale files written. Defaults to the same as --dir                                               | String  | Optional  |
+| --aimodel          | Override the default AI model for either OpenAI or Anthropic                                                                         | String  | Optional  |
+| --notranslate      | A list of strings that should not be translated. For example, product names. E.g. `--notranslate "My Cool App" "My Company Name"`    | Boolean | Optional  |
+| --quiet            | Do not log anything to the console when running                                                                                      | Boolean | Optional  |
+| --force            | Force the translation of all strings in the main locale files, even if they have not changed. This will be slower and more expensive | Boolean | Optional  |
 
 ## License
 

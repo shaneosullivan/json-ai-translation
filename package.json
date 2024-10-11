@@ -9,7 +9,9 @@
   "description": "Automatically translate JSON files of strings into multiple locales simultaneously using AI.",
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "tsc",
+    "example-openai": "bun src/index.ts --dir example/nested/locales --dest example/build/nested/locales --main en --openaitoken \"$OPENAI_API_KEY\" --force",
+    "example-anthropic": "bun src/index.ts --dir example/nested/locales --dest example/build/nested/locales --main en --anthropicaitoken \"$ANTHROPIC_API_KEY\" --force"
   },
   "files": [
     "dist"
@@ -32,11 +34,12 @@
   "bugs": "https://github.com/shaneosullivan/json-ai-translation/issues",
   "author": "Shane O'Sullivan <shaneosullivan1@gmail.com>",
   "devDependencies": {
-    "bun-plugin-dts": "^0.2.1",
     "@types/bun": "^1.0.0",
+    "bun-plugin-dts": "^0.2.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.29.0",
     "openai": "^4.67.3"
   }
 }
