@@ -375,12 +375,12 @@ export function createRunner(options: RunnerOptions): Runner {
       const localeCodes = getLocaleCodes();
 
       if (!localeCodes) {
-        return;
+        return [];
       }
 
       if (localeCodes.indexOf(mainLocale) < 0) {
         console.error("Main locale ", mainLocale, " not found in dir ", dir);
-        return;
+        return [];
       }
 
       const localesInfo = getFileContentForCodes(localeCodes);
