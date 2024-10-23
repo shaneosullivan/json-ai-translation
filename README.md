@@ -19,6 +19,8 @@ Install the package from NPM
 npm install -g json-ai-translation
 ```
 
+[![JSON AI Translation](https://github.com/user-attachments/assets/e1a70a43-78f2-4148-afa8-78a6b0dc869b)](https://youtu.be/97ZOc9MhM0w?si=cjySF--e4MKqufXg "JSON AI Translation")
+
 ## CLI Usage
 
 The package assumes that you keep all your files to be translated in a single folder,
