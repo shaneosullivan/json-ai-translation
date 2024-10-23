@@ -163,7 +163,18 @@ export function createRunner(options: RunnerOptions): Runner {
     localesInfo
       .filter((localeInfo) => localeInfo.locale !== mainLocale)
       .forEach((localeInfo) => {
-        const newFileContent = unflattenJSON(localeInfo.file[fileName]);
+        const reorderedLocaleFileInfo: Record<string, string> = {};
+        const translatedLocaleFileInfo = localeInfo.file[fileName];
+
+        // Ensure that the keys are in the same order. This effects how
+        // they are nested when unflattened.
+        Object.keys(mainFileContents).forEach((key, idx) => {
+          if (translatedLocaleFileInfo[key] !== undefined) {
+            reorderedLocaleFileInfo[key] = translatedLocaleFileInfo[key];
+          }
+        });
+
+        const newFileContent = unflattenJSON(reorderedLocaleFileInfo);
 
         ensureDirectoryExists(join(dest, localeInfo.locale));
 
