@@ -83,7 +83,9 @@ export function createRunner(options: RunnerOptions): Runner {
     deletedFileKeys: Record<string, Array<string>>,
     logName: string
   ) {
-    const fileNames = Object.keys(mainLocaleInfo.file);
+    const fileNames = isUsingSubFolders
+      ? Object.keys(mainLocaleInfo.file)
+      : localesInfo.map((localeInfo) => Object.keys(localeInfo.file)[0]);
 
     let totalKeysToUpdate = 0;
     fileNames.forEach((fileName) => {
@@ -143,7 +145,9 @@ export function createRunner(options: RunnerOptions): Runner {
       .map((localeInfo) => localeInfo.locale)
       .filter((localeCode) => localeCode !== mainLocale);
 
-    const mainFileContents = mainLocaleInfo.file[fileName];
+    const mainFileContents = isUsingSubFolders
+      ? mainLocaleInfo.file[fileName]
+      : mainLocaleInfo.file[Object.keys(mainLocaleInfo.file)[0]];
     const filteredFileContents: Record<string, string> = {};
 
     if (keys.length > 0) {
