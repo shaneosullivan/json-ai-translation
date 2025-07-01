@@ -33,6 +33,14 @@ public/locales/es/common.json
 public/locales/ko/common.json
 ```
 
+Alternatively, you can have a single file per locale, e.g.
+
+```bash
+public/locales/en.json
+public/locales/de.json
+public/locales/es.json
+```
+
 You must tell the script which locale is the authoritive one from which all
 other locales are translated. The example below assumes that your OpenAI API key
 is in the `OPENAI_API_KEY` environment variable.
@@ -56,14 +64,20 @@ values in the locale files previously, those will remain unchanged.
 
 ## Adding a new locale
 
-To add a new locale, simply create a new folder with that locale code, e.g. Portuguese
+To add a new locale, simply create a new folder with that locale code, e.g. Portuguese, if you are organizing your files in sub-folders:
 
 ```bash
 public/locales/pt
 ```
 
-and run the `json-ai-translation` command again. All the files in the main locale will be
-created in the new locale, fully translated by AI.
+If you are using a single file per locale, create a new empty JSON text file:
+
+```bash
+public/locales/pt.json
+```
+
+Then, you can run the `json-ai-translation` command again with the same parameters as before.
+All the content in the main locale will be translated by AI and written to the new locale.
 
 ## Building to another folder
 
