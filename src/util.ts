@@ -85,7 +85,7 @@ export function flattenJSONFile(
       fileContents = "{}"; // Default to empty object if file does not exist in history
     }
   } else if (existsSync(filePath)) {
-    fileContents = readFileSync(filePath, "utf-8");
+    fileContents = readFileSync(filePath, "utf-8").toString().trim() || "{}";
   }
 
   // Parse the JSON
@@ -105,7 +105,8 @@ export function getGitDiffJSON(
   added: string[];
 } {
   // Read the current contents of the file
-  const currentFileContents = readFileSync(filePath, "utf-8");
+  const currentFileContents =
+    readFileSync(filePath, "utf-8").toString().trim() || "{}";
   const currentJson = JSON.parse(currentFileContents);
 
   // Flatten the current JSON

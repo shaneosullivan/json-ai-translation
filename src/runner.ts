@@ -44,11 +44,36 @@ export function createRunner(options: RunnerOptions): Runner {
     forceTranslateAll,
   } = options;
 
+  let isUsingSubFolders = false;
+
   function log(...args: Array<any>) {
     if (isQuiet) {
       return;
     }
     console.log(...args);
+  }
+
+  function getLocaleSourceFilePath(locale: string, fileName: string) {
+    if (isUsingSubFolders) {
+      const folderBased = join(dir, locale, fileName);
+
+      if (fs.existsSync(folderBased)) {
+        return folderBased;
+      }
+    } else {
+      const fileBased = join(
+        dir,
+        fileName.indexOf(".json") < 0 ? `${fileName}.json` : fileName
+      );
+      // If the folder based file does not exist, try the file in the main locale
+      if (fs.existsSync(fileBased)) {
+        return fileBased;
+      }
+    }
+
+    throw new Error(
+      `Locale file ${fileName} not found in ${dir} for locale ${locale}`
+    );
   }
 
   async function updateAllLocaleFiles(
@@ -152,9 +177,13 @@ export function createRunner(options: RunnerOptions): Runner {
         );
 
         if (localeInfo) {
+          const localeFileName = isUsingSubFolders
+            ? fileName
+            : Object.keys(localeInfo.file)[0];
+
           // Copy the translated copy into the source of truth
           Object.keys(translatedContent).forEach((key) => {
-            localeInfo.file[fileName][key] = translatedContent[key];
+            localeInfo.file[localeFileName][key] = translatedContent[key];
           });
         }
       });
@@ -163,8 +192,11 @@ export function createRunner(options: RunnerOptions): Runner {
     localesInfo
       .filter((localeInfo) => localeInfo.locale !== mainLocale)
       .forEach((localeInfo) => {
+        const localeFileName = isUsingSubFolders
+          ? fileName
+          : Object.keys(localeInfo.file)[0];
         const reorderedLocaleFileInfo: Record<string, string> = {};
-        const translatedLocaleFileInfo = localeInfo.file[fileName];
+        const translatedLocaleFileInfo = localeInfo.file[localeFileName];
 
         // Ensure that the keys are in the same order. This effects how
         // they are nested when unflattened.
@@ -176,12 +208,14 @@ export function createRunner(options: RunnerOptions): Runner {
 
         const newFileContent = unflattenJSON(reorderedLocaleFileInfo);
 
-        ensureDirectoryExists(join(dest, localeInfo.locale));
+        let fileDir = join(dest);
+        if (isUsingSubFolders) {
+          fileDir = join(dest, localeInfo.locale);
+        }
+        ensureDirectoryExists(fileDir);
+        const filePath = join(fileDir, localeFileName);
 
-        fs.writeFileSync(
-          join(dest, localeInfo.locale, fileName),
-          stringifyWithNewlines(newFileContent)
-        );
+        fs.writeFileSync(filePath, stringifyWithNewlines(newFileContent));
       });
   }
 
@@ -191,13 +225,25 @@ export function createRunner(options: RunnerOptions): Runner {
     const localesInfo: Array<LocaleInfo> = [];
 
     // List the files in the main folder.
-    const localeFiles = listFilesInPath(join(dir, mainLocale));
+    let localeFiles: Array<string> = [];
+
+    if (isUsingSubFolders) {
+      localeFiles = listFilesInPath(join(dir, mainLocale));
+    }
 
     localeCodes.forEach((code) => {
       const filesContent: Record<string, Record<string, string>> = {};
 
+      if (!isUsingSubFolders) {
+        // If we are not using subfolders, we need to list the files in the main folder
+        // and use them for all locales
+        localeFiles = [`${code}.json`];
+      }
+
       localeFiles.forEach((fileName) => {
-        const filePath = join(dir, code, fileName);
+        const filePath = isUsingSubFolders
+          ? join(dir, code, fileName)
+          : join(dir, fileName);
 
         let fileContent: Record<string, string> =
           flattenJSONFile(filePath, code !== mainLocale, isQuiet) || {};
@@ -231,11 +277,10 @@ export function createRunner(options: RunnerOptions): Runner {
     if (mainLocaleInfo) {
       // Go through the files in the main locales, and match its keys against the other files.
       const fileNames = Object.keys(mainLocaleInfo.file);
+
       fileNames.forEach((fileName) => {
-        const gitInfo = getGitDiffJSON(
-          join(dir, mainLocale, fileName),
-          !!forceTranslateAll
-        );
+        const filePath = getLocaleSourceFilePath(mainLocale, fileName);
+        const gitInfo = getGitDiffJSON(filePath, !!forceTranslateAll);
 
         changedKeys[fileName] = gitInfo.added.concat(gitInfo.replaced);
         deletedKeys[fileName] = gitInfo.deleted;
@@ -287,14 +332,19 @@ export function createRunner(options: RunnerOptions): Runner {
             );
           }
 
-          const fileRecord = localeInfo.file[fileName];
+          const localeFileName = isUsingSubFolders
+            ? fileName
+            : Object.keys(localeInfo.file)[0];
+
+          const fileRecord = localeInfo.file[localeFileName];
+
           fileKeys.forEach((fileKey) => {
             if (!fileRecord[fileKey]) {
               if (missingKeyInfo) {
-                if (!missingKeyInfo.files[fileName]) {
-                  missingKeyInfo.files[fileName] = [];
+                if (!missingKeyInfo.files[localeFileName]) {
+                  missingKeyInfo.files[localeFileName] = [];
                 }
-                missingKeyInfo.files[fileName].push(fileKey);
+                missingKeyInfo.files[localeFileName].push(fileKey);
               }
             }
           });
@@ -327,7 +377,7 @@ export function createRunner(options: RunnerOptions): Runner {
     return commonKeys;
   }
 
-  function getLocaleCodes() {
+  function getLocaleCodesFromFolders() {
     const folders = listFoldersInPath(dir);
 
     const invalidFolderNames: Array<string> = [];
@@ -342,6 +392,39 @@ export function createRunner(options: RunnerOptions): Runner {
       return null;
     }
     return folders;
+  }
+
+  function getLocalCodesFromFiles() {
+    const files = listFilesInPath(dir);
+
+    const localeCodes: Array<string> = [];
+    files.forEach((fileName) => {
+      const localeCode = fileName.split(".")[0];
+      if (isValidLocale(localeCode)) {
+        localeCodes.push(localeCode);
+      }
+    });
+
+    if (localeCodes.length === 0) {
+      console.error("No valid locale codes found in ", dir);
+      return null;
+    }
+
+    return localeCodes;
+  }
+
+  function getLocalCodes() {
+    const localeCodes = getLocaleCodesFromFolders();
+
+    if (localeCodes && localeCodes.length > 0) {
+      isUsingSubFolders = true;
+      return localeCodes;
+    }
+
+    isUsingSubFolders = false;
+
+    // If we didn't find any valid locale codes in the folders, try the files
+    return getLocalCodesFromFiles();
   }
 
   async function translateJSON(
@@ -383,7 +466,7 @@ export function createRunner(options: RunnerOptions): Runner {
 
   return {
     run: async () => {
-      const localeCodes = getLocaleCodes();
+      const localeCodes = getLocalCodes();
 
       if (!localeCodes) {
         return [];

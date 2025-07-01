@@ -22,10 +22,10 @@ const simpleTranslation: AITranslation = (
   return Promise.resolve(stringifyWithNewlines(localeJsons));
 };
 
-function makeRunner(folderName: string) {
+function makeRunner(folderName: string, subFolderName = "/locales") {
   return createRunner({
     dest: `example/build/${folderName}`,
-    dir: `example/${folderName}/locales`,
+    dir: `example/${folderName}${subFolderName}`,
     isQuiet: false,
     mainLocale: "en",
     noTranslate: [],
@@ -61,7 +61,13 @@ function multifileExample() {
   runner.run();
 }
 
+function rootLevelExample() {
+  const runner = makeRunner("rootlevel", "");
+  runner.run();
+}
+
 multifileExample();
 nestedExample();
 flatExample();
 newLocaleExample();
+rootLevelExample();
