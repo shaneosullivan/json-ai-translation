@@ -73,14 +73,17 @@ export function flattenJSONFile(
   if (useGitSource) {
     try {
       const gitDiffCommand = `git show HEAD:${filePath}`;
-      fileContents = execSync(
-        gitDiffCommand,
-        isQuiet
-          ? {
-              stdio: ["pipe", "pipe", "ignore"],
-            }
-          : undefined
-      ).toString();
+      fileContents =
+        execSync(
+          gitDiffCommand,
+          isQuiet
+            ? {
+                stdio: ["pipe", "pipe", "ignore"],
+              }
+            : undefined
+        )
+          .toString()
+          .trim() || "{}";
     } catch (error) {
       fileContents = "{}"; // Default to empty object if file does not exist in history
     }
