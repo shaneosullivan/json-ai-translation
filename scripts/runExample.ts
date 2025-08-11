@@ -22,14 +22,18 @@ const simpleTranslation: AITranslation = (
   return Promise.resolve(stringifyWithNewlines(localeJsons));
 };
 
-function makeRunner(folderName: string, subFolderName = "/locales") {
+function makeRunner(
+  folderName: string,
+  subFolderName = "/locales",
+  forceTranslateAll = true
+) {
   return createRunner({
     dest: `example/build/${folderName}`,
     dir: `example/${folderName}${subFolderName}`,
     isQuiet: false,
     mainLocale: "en",
     noTranslate: [],
-    forceTranslateAll: true,
+    forceTranslateAll,
 
     translationFn: simpleTranslation,
   });
@@ -61,11 +65,22 @@ function multifileExample() {
   runner.run();
 }
 
+// This example should not update any keys at all, as nothing has changed.
+// This is useful for validating that manually updating just a single
+// file only updates the keys for that file, and not for unchanged files in
+// the locale
+function multifileNoopExample() {
+  const runner = makeRunner("multifile_noop", "/locales", false);
+
+  runner.run();
+}
+
 function rootLevelExample() {
   const runner = makeRunner("rootlevel", "");
   runner.run();
 }
 
+multifileNoopExample();
 multifileExample();
 nestedExample();
 flatExample();

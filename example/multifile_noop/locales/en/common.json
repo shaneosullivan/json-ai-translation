@@ -1,0 +1,9 @@
+{
+  "home.page": "Home Page",
+  "login": {
+    "title": "This is the login page",
+    "action": {
+      "btn": "Click Me"
+    }
+  }
+}
