@@ -9,6 +9,7 @@
   "description": "Automatically translate JSON files of strings into multiple locales simultaneously using AI.",
   "scripts": {
     "build": "tsc",
+    "test": "bun test",
     "prepublishOnly": "tsc",
     "example-openai": "bun src/index.ts --dir example/nested/locales --dest example/build/nested/locales --main en --openaitoken \"$OPENAI_API_KEY\" --force",
     "example-anthropic": "bun src/index.ts --dir example/nested/locales --dest example/build/nested/locales --main en --anthropicaitoken \"$ANTHROPIC_API_KEY\" --force"

@@ -45,11 +45,7 @@ export function flattenJSON(
     if (jsonObject.hasOwnProperty(key)) {
       const escapedKey = key.split(".").join(PERIOD_ESC);
       const newKey = parentKey ? `${parentKey}.${escapedKey}` : escapedKey;
-      if (
-        typeof jsonObject[key] === "object" &&
-        jsonObject[key] !== null &&
-        !Array.isArray(jsonObject[key])
-      ) {
+      if (typeof jsonObject[key] === "object" && jsonObject[key] !== null) {
         // Recursively flatten the nested object
         flattenJSON(jsonObject[key], newKey, result);
       } else {
