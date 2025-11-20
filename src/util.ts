@@ -199,12 +199,53 @@ export function getUniqueStringArray(
   return uniqueArray;
 }
 
+function getIsFlattenedArray(
+  flattenedKeys: Array<string>,
+  fromIndex: number,
+  flatKey: string,
+  keys: string[],
+  keyIndex: number
+): boolean {
+  const numFlattenedKeys = flattenedKeys.length;
+  const nextKey = keys[keyIndex + 1];
+
+  // Check if the next key is a numeric index
+  if (isNaN(Number(nextKey))) {
+    return false;
+  }
+
+  // Search ahead to see how many array indices there are
+  for (let j = fromIndex; j < numFlattenedKeys; j++) {
+    const nextFlatKey = flattenedKeys[j];
+    if (nextFlatKey.indexOf(flatKey + ".") < 0) {
+      // We've seen all the relevant keys
+      // that match the current flatKey prefix
+      break;
+    }
+
+    const nextKeys = nextFlatKey.split(".");
+    if (nextKeys.length !== keys.length) {
+      return false;
+    }
+    if (isNaN(Number(nextKeys[keyIndex + 1]))) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export function unflattenJSON(
   flattened: Record<string, string>
 ): Record<string, any> {
   const result: { [key: string]: any } = {};
 
-  for (const flatKey in flattened) {
+  const flattenedKeys = Object.keys(flattened);
+  const numFlattenedKeys = flattenedKeys.length;
+
+  for (let i = 0; i < numFlattenedKeys; i++) {
+    const flatKey = flattenedKeys[i];
+
     if (flattened.hasOwnProperty(flatKey)) {
       const keys = flatKey.split("."); // Split the key by periods to create nested structure
       let currentLevel = result;
@@ -218,7 +259,12 @@ export function unflattenJSON(
         } else {
           // If the key doesn't exist at this level, create an empty object
           if (!currentLevel[unescapedKey]) {
-            currentLevel[unescapedKey] = {};
+            // Detect if this represents an array index
+            const isArray =
+              index < keys.length - 1 &&
+              getIsFlattenedArray(flattenedKeys, i, flatKey, keys, index);
+
+            currentLevel[unescapedKey] = isArray ? [] : {};
           }
           // Move deeper into the object
           currentLevel = currentLevel[unescapedKey];
