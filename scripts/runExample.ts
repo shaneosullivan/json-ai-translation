@@ -9,10 +9,10 @@ const simpleTranslation: AITranslation = (
 ) => {
   const json = JSON.parse(jsonStr);
 
-  const localeJsons = {};
+  const localeJsons: Record<string, Record<string, string>> = {};
 
   locales.forEach((locale) => {
-    const localeJson = {};
+    const localeJson: Record<string, string> = {};
     Object.keys(json).forEach((key) => {
       localeJson[key] = `[${locale.toUpperCase()}] ${json[key]}`;
     });
