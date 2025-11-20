@@ -139,7 +139,16 @@ export function getGitDiffJSON(
   for (const key in flattenedPreviousJson) {
     if (flattenedPreviousJson.hasOwnProperty(key)) {
       if (key in flattenedCurrentJson) {
-        if (flattenedPreviousJson[key] !== flattenedCurrentJson[key]) {
+        const areArrays =
+          Array.isArray(flattenedPreviousJson[key]) &&
+          Array.isArray(flattenedCurrentJson[key]);
+
+        const areEqual = areArrays
+          ? JSON.stringify(flattenedPreviousJson[key]) ===
+            JSON.stringify(flattenedCurrentJson[key])
+          : flattenedPreviousJson[key] === flattenedCurrentJson[key];
+
+        if (!areEqual) {
           replaced.push(key); // Value was changed
         }
       } else {
