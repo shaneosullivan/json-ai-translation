@@ -80,9 +80,15 @@ function rootLevelExample() {
   runner.run();
 }
 
+function arraysExample() {
+  const runner = makeRunner("arrays", "/locales", false);
+  runner.run();
+}
+
 multifileNoopExample();
 multifileExample();
 nestedExample();
 flatExample();
 newLocaleExample();
 rootLevelExample();
+arraysExample();
